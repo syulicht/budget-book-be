@@ -11,13 +11,13 @@ env:
   ECS_CLUSTER: mm-app-be-cluster
   ECS_SERVICE: mm-app-be-service
   ECS_TASK_DEFINITION: mm-app-be-task
-  CONTAINER_NAME: mm-app-be
+  CONTAINER_NAME: budget-book-be
 
 jobs:
   deploy:
     name: Deploy to ECS
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
