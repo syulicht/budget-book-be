@@ -18,4 +18,4 @@ RUN npm run build && npm prune --omit=dev
 EXPOSE 3000
 
 # Start application
-CMD ["npx prisma migrate deploy && node dist/server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
