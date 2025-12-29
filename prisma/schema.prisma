@@ -13,3 +13,62 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+enum BudgetType {
+  INCOME
+  EXPENSE
+}
+
+enum Frequency {
+  YEAR
+  MONTH
+  WEEK
+  DAY
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  type BudgetType @default(INCOME)
+  name String
+  userId Int @default(0)
+  budgetBases BudgetBase[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BudgetBase {
+  id Int @id @default(autoincrement())
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  amount Int @default(0)
+  memo String
+  budgets Budget[]
+  subscriptions Subscription[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Budget {
+  id Int  @id @default(autoincrement())
+  budget BudgetBase @relation(fields: [budgetBaseId], references: [id])
+  budgetBaseId Int
+  userId Int
+  date DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Subscription {
+  id Int @id @default(autoincrement())
+  budget BudgetBase @relation(fields: [budgetBaseId], references: [id])
+  budgetBaseId Int
+  userId Int
+  frequency Frequency @default(MONTH)
+  dayOrder Int @default(1)
+  startDate DateTime @default(now())
+  endDate DateTime @default(now())
+  nextDate DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
