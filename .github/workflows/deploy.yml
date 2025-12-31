@@ -9,8 +9,8 @@ env:
   AWS_REGION: ap-northeast-1
   ECR_REPOSITORY: mm-app/mm-app-be
   ECS_CLUSTER: mm-app-be-cluster
-  ECS_SERVICE: mm-app-be-service
-  ECS_TASK_DEFINITION: mm-app-be-task
+  ECS_SERVICE: budge-book-be-task-service-7ymgobfh
+  ECS_TASK_DEFINITION: budge-book-be-task
   CONTAINER_NAME: budget-book-be
 
 jobs:
