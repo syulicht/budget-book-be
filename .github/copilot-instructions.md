@@ -109,8 +109,29 @@ const users = await prisma.user.findMany();
 - 複雑なロジックには必ず説明を追加
 - 公開 API 相当の関数には JSDoc を推奨
 
+## コード品質
+
+### ESLint
+
+- TypeScript ESLint を使用
+- `npm run lint`: Lint チェック
+- `npm run lint:fix`: 自動修正
+- コミット前に必ず lint エラーを解消すること
+
+### Prettier
+
+- コードフォーマッターとして使用
+- `npm run format`: コード整形
+- `npm run format:check`: フォーマットチェック
+- セミコロンあり、シングルクォートなし、tabWidth: 2
+
+### GitHub Actions
+
+- 全てのブランチで push 時に自動 Lint チェックが実行される
+- Lint エラーがある場合は CI が失敗する
+
 ## 注意事項
 
-- ESLint/Prettier は未導入 (将来的に導入予定)
 - テストフレームワークは未導入 (将来的に導入予定)
 - TypeScript コンパイルエラーは必ず解決すること
+- ESLint エラーは必ず解決してからコミットすること
