@@ -22,9 +22,31 @@ infer: true
 
 ## 重要: 作業開始前の手順
 
-### 作業計画の共有と承認
+### 1. 作業ブランチの作成
 
-**必ず作業を開始する前に、以下を含む作業計画を共有し、承認を得ること:**
+**必ず作業を開始する前に、新しい作業ブランチを作成すること:**
+
+```bash
+# 最新のベースブランチ（通常はmain）を取得
+git checkout main
+git pull origin main
+
+# 作業ブランチを作成（命名規則: feature/機能名 または fix/修正内容）
+git checkout -b feature/機能名
+# または
+git checkout -b fix/修正内容
+```
+
+**ブランチ命名規則:**
+
+- 新機能: `feature/機能名` (例: `feature/user-authentication`)
+- バグ修正: `fix/修正内容` (例: `fix/login-error`)
+- リファクタリング: `refactor/対象` (例: `refactor/user-controller`)
+- ドキュメント: `docs/対象` (例: `docs/update-readme`)
+
+### 2. 作業計画の共有と承認
+
+**ブランチ作成後、以下を含む作業計画を共有し、承認を得ること:**
 
 1. 実装する機能・変更内容の概要
 2. 変更するファイルとその理由
@@ -100,6 +122,37 @@ npm run build
 ```
 
 - TypeScript コンパイルエラーがないことを確認
+
+### 7. 変更のコミットとプッシュ
+
+**実装完了後、変更をコミットしてリモートにプッシュすること:**
+
+```bash
+# 変更ファイルの確認
+git status
+
+# 変更をステージング
+git add <ファイル>
+
+# コミット（明確なメッセージを記載）
+git commit -m "feat: 機能の説明" # 新機能の場合
+git commit -m "fix: 修正内容の説明" # バグ修正の場合
+git commit -m "refactor: リファクタリング内容" # リファクタリングの場合
+git commit -m "docs: ドキュメント更新内容" # ドキュメント更新の場合
+
+# リモートにプッシュ
+git push origin ブランチ名
+```
+
+**コミットメッセージ規約:**
+
+- `feat:` - 新機能
+- `fix:` - バグ修正
+- `refactor:` - リファクタリング
+- `docs:` - ドキュメント更新
+- `style:` - コードフォーマット
+- `test:` - テスト追加・修正
+- `chore:` - その他の変更
 
 ## 実装パターン
 
