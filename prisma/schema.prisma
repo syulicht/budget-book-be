@@ -24,45 +24,53 @@ enum Frequency {
 model Category {
   id Int @id @default(autoincrement())
   name String
-  userId Int
-  budgetBases BudgetBase[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user_id Int
+  budget_bases BudgetBase[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("category")
 }
 
 model BudgetBase {
   id Int @id @default(autoincrement())
-  category Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
+  category Category @relation(fields: [category_id], references: [id])
+  category_id Int
   amount Int
   memo String
   budgets Budget[]
   subscriptions Subscription[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("budget_base")
 }
 
 
 model Budget {
   id Int  @id @default(autoincrement())
-  budget BudgetBase @relation(fields: [budgetBaseId], references: [id])
-  budgetBaseId Int
-  userId Int
+  budget BudgetBase @relation(fields: [budget_base_id], references: [id])
+  budget_base_id Int
+  user_id Int
   date DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("budget")
 }
 
 model Subscription {
   id Int @id @default(autoincrement())
-  budget BudgetBase @relation(fields: [budgetBaseId], references: [id])
-  budgetBaseId Int
-  userId Int
+  budget BudgetBase @relation(fields: [budget_base_id], references: [id])
+  budget_base_id Int
+  user_id Int
   frequency Frequency @default(MONTH)
-  dayOrder Int
-  startDate DateTime
-  endDate DateTime
-  nextDate DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  day_order Int
+  start_date DateTime
+  end_date DateTime
+  next_date DateTime?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("subscription")
 }
