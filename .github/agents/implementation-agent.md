@@ -195,16 +195,32 @@ export default router;
 
 ```prisma
 model ModelName {
-  id        Int      @id @default(autoincrement())
-  name      String
-  userId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  name       String
+  user_id    Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  // リレーション
-  user User @relation(fields: [userId], references: [id])
+  // リレーション (例)
+  // user User @relation(fields: [user_id], references: [id])
+
+  @@map("model_name")
 }
 ```
+
+**重要なPrisma規約:**
+
+- モデル名: PascalCase (例: `BudgetBase`)
+- テーブル名: snake_case (例: `budget_base`) - `@@map` で指定
+- フィールド名: snake_case (例: `user_id`, `created_at`)
+- Enum名: PascalCase、値: UPPER_SNAKE_CASE
+
+**既存のモデル例:**
+
+- `Category`: カテゴリ管理
+- `BudgetBase`: 予算ベース情報
+- `Budget`: 予算記録
+- `Subscription`: 定期予算
 
 ## 注意事項
 

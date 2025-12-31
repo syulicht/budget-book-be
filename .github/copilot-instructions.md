@@ -69,9 +69,34 @@ src/
 ## Prisma 規約
 
 - モデル名: PascalCase (例: `BudgetBase`)
-- フィールド名: camelCase (例: `userId`)
+- テーブル名: snake_case (例: `budget_base`) - `@@map` ディレクティブを使用
+- フィールド名（TypeScript 側）: snake_case (例: `user_id`)
 - Enum 名: PascalCase、値: UPPER_SNAKE_CASE
 - クライアント出力先: `src/generated/prisma`
+
+### データベーススキーマ
+
+**主要なモデル:**
+
+- `Category` - カテゴリ管理
+  - フィールド: id, name, user_id, created_at, updated_at
+  - リレーション: BudgetBase (1:N)
+
+- `BudgetBase` - 予算ベース情報
+  - フィールド: id, category_id, amount, memo, created_at, updated_at
+  - リレーション: Category (N:1), Budget (1:N), Subscription (1:N)
+
+- `Budget` - 予算記録
+  - フィールド: id, budget_base_id, user_id, date, created_at, updated_at
+  - リレーション: BudgetBase (N:1)
+
+- `Subscription` - 定期予算
+  - フィールド: id, budget_base_id, user_id, frequency, day_order, start_date, end_date, next_date, created_at, updated_at
+  - リレーション: BudgetBase (N:1)
+
+**Enum:**
+
+- `Frequency` - 定期予算の頻度 (YEAR, MONTH, WEEK, DAY)
 
 ### Prisma クライアントの使用
 
@@ -79,7 +104,17 @@ src/
 import { prisma } from "./lib/prisma.js";
 
 // データ取得
-const users = await prisma.user.findMany();
+const categories = await prisma.category.findMany();
+
+// リレーション込みで取得
+const budgetBase = await prisma.budgetBase.findUnique({
+  where: { id: 1 },
+  include: {
+    category: true,
+    budgets: true,
+    subscriptions: true,
+  },
+});
 ```
 
 ## 開発コマンド

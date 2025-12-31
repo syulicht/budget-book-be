@@ -40,6 +40,12 @@
 ## Prisma規約
 - スキーマファイル: `prisma/schema.prisma`
 - クライアント出力: `src/generated/prisma`
-- モデル名: PascalCase
-- フィールド名: camelCase
-- Enum: PascalCase (値は UPPER_SNAKE_CASE)
+- モデル名: PascalCase (例: BudgetBase)
+- テーブル名: snake_case (例: budget_base) - `@@map` ディレクティブを使用
+- フィールド名: snake_case (例: user_id, created_at)
+- Enum名: PascalCase、値: UPPER_SNAKE_CASE (例: Frequency { YEAR, MONTH, WEEK, DAY })
+
+### リレーション設定
+- 外部キーフィールドには `@relation` ディレクティブを使用
+- 相互参照を明示的に定義
+- CASCADE や RESTRICT などの動作を適切に設定

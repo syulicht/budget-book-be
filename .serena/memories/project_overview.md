@@ -36,6 +36,23 @@ budget-book-be/
 
 ## 主要な機能
 - ヘルスチェックエンドポイント (`/api/health`)
-- カテゴリ管理
-- 予算ベース管理
-- ユーザー管理
+- カテゴリ管理 (Category)
+- 予算ベース管理 (BudgetBase)
+- 予算記録管理 (Budget)
+- 定期予算管理 (Subscription)
+
+## データベーススキーマ
+
+### モデル構成
+- **Category**: カテゴリ情報 (id, name, user_id, created_at, updated_at)
+- **BudgetBase**: 予算のベース情報 (id, category_id, amount, memo, created_at, updated_at)
+- **Budget**: 個別の予算記録 (id, budget_base_id, user_id, date, created_at, updated_at)
+- **Subscription**: 定期的な予算 (id, budget_base_id, user_id, frequency, day_order, start_date, end_date, next_date, created_at, updated_at)
+
+### Enum
+- **Frequency**: 定期予算の頻度 (YEAR, MONTH, WEEK, DAY)
+
+### 命名規則
+- モデル名: PascalCase (例: BudgetBase)
+- テーブル名: snake_case (例: budget_base)
+- フィールド名: snake_case (例: user_id, created_at)
