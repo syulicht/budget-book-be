@@ -13,24 +13,54 @@ export type BudgetRecord = {
   };
 };
 
-export const findBudgets = async (): Promise<BudgetRecord[]> => {
-  return prismaClient.budget.findMany({
-    orderBy: [{ date: "desc" }, { id: "desc" }],
-    select: {
-      id: true,
-      date: true,
-      budget: {
-        select: {
-          amount: true,
-          memo: true,
-          category: {
-            select: {
-              id: true,
-              name: true,
-            },
+type BudgetFindManyArgs = {
+  orderBy: [{ date: "desc" }, { id: "desc" }];
+  select: {
+    id: true;
+    date: true;
+    budget: {
+      select: {
+        amount: true;
+        memo: true;
+        category: {
+          select: {
+            id: true;
+            name: true;
+          };
+        };
+      };
+    };
+  };
+};
+
+type BudgetPrismaClient = {
+  budget: {
+    findMany: (args: BudgetFindManyArgs) => Promise<BudgetRecord[]>;
+  };
+};
+
+const budgetFindManyArgs: BudgetFindManyArgs = {
+  orderBy: [{ date: "desc" }, { id: "desc" }],
+  select: {
+    id: true,
+    date: true,
+    budget: {
+      select: {
+        amount: true,
+        memo: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
           },
         },
       },
     },
-  });
+  },
+};
+
+const budgetClient = prismaClient as unknown as BudgetPrismaClient;
+
+export const findBudgets = (): Promise<BudgetRecord[]> => {
+  return budgetClient.budget.findMany(budgetFindManyArgs);
 };
