@@ -3,7 +3,10 @@ version = 1
 name = "budget-book-be"
 
 [setup]
-script = "npm install"
+script = '''
+npm install
+DATABASE_URL="mysql://root:root@localhost:3306/budget_book" npx prisma generate
+'''
 
 [[actions]]
 name = "Run"
