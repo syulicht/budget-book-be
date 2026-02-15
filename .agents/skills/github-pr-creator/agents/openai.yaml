@@ -1,0 +1,3 @@
+interface:
+  display_name: "GitHub PR 作成"
+  short_description: "変更差分からGitHub PR本文を日本語で作成"
