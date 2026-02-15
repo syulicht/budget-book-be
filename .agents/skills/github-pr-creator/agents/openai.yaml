@@ -1,3 +1,4 @@
 interface:
   display_name: "GitHub PR 作成"
   short_description: "変更差分からGitHub PR本文を日本語で作成"
+  default_prompt: "Use $github-pr-creator to git差分を要約し、ghコマンドでPR作成または更新まで実行してください。"
