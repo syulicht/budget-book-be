@@ -1,4 +1,4 @@
-# GitHub Copilot Instructions - Budget Book Backend
+# Budget Book Backend
 
 ## プロジェクト概要
 
