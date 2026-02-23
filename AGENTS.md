@@ -122,9 +122,14 @@ const budgetBase = await prisma.budgetBase.findUnique({
 - `npm run dev`: 開発サーバー起動 (ホットリロード)
 - `npm run build`: TypeScript コンパイル
 - `npm start`: プロダクション実行
+- `npm test`: テスト実行 (Vitest)
+- `npm run test:watch`: テスト監視実行 (Vitest)
 - `npx prisma migrate dev`: マイグレーション生成・実行
 - `npx prisma generate`: Prisma クライアント生成
 - `npx prisma studio`: Prisma Studio 起動
+- `npm run db:up`: Docker Compose で MySQL を起動
+- `npm run db:down`: Docker Compose で MySQL を停止
+- `npm run db:logs`: MySQL コンテナのログを追跡
 
 ## API 設計
 
@@ -167,6 +172,6 @@ const budgetBase = await prisma.budgetBase.findUnique({
 
 ## 注意事項
 
-- テストフレームワークは未導入 (将来的に導入予定)
+- テストは Vitest を使用
 - TypeScript コンパイルエラーは必ず解決すること
 - ESLint エラーは必ず解決してからコミットすること
