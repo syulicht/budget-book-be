@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { resolveUserSub } from "../lib/auth.js";
 import {
   createBudget as createBudgetService,
   DomainError,
@@ -10,12 +11,17 @@ import { validateCreateBudgetRequest } from "../validators/budgetValidator.js";
  * 予算一覧取得エンドポイント
  */
 export const getBudgets = async (
-  _req: Request,
+  req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+  const userSub = resolveUserSub(req, res);
+  if (!userSub) {
+    return;
+  }
+
   try {
-    const response = await getBudgetList();
+    const response = await getBudgetList(userSub);
 
     res.status(200).json(response);
   } catch (error) {
@@ -28,6 +34,11 @@ export const createBudget = async (
   res: Response,
   next: NextFunction
 ): Promise<void> => {
+  const userSub = resolveUserSub(req, res);
+  if (!userSub) {
+    return;
+  }
+
   try {
     const validationResult = validateCreateBudgetRequest(req.body as unknown);
     if (!validationResult.ok) {
@@ -38,7 +49,7 @@ export const createBudget = async (
       return;
     }
 
-    const created = await createBudgetService(validationResult.value);
+    const created = await createBudgetService(validationResult.value, userSub);
 
     res.status(201).json({
       status: "success",

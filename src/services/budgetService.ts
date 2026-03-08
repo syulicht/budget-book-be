@@ -23,7 +23,7 @@ export type CreatedBudgetResult = {
   memo: string;
   categoryId: number;
   budgetBaseId: number;
-  userId: number;
+  userId: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -39,8 +39,6 @@ export class DomainError extends Error {
     this.name = "DomainError";
   }
 }
-
-const TEMP_USER_ID = 0;
 
 const inferBudgetType = (amount: number): BudgetType =>
   amount > 0 ? "INCOME" : "EXPENSE";
@@ -62,14 +60,17 @@ export const toBudgetListResponse = (
   };
 };
 
-export const getBudgetList = async (): Promise<BudgetListResponse> => {
-  const records = await findBudgets();
+export const getBudgetList = async (
+  userSub: string
+): Promise<BudgetListResponse> => {
+  const records = await findBudgets(userSub);
 
   return toBudgetListResponse(records);
 };
 
 export const createBudget = async (
-  input: CreateBudgetInput
+  input: CreateBudgetInput,
+  userSub: string
 ): Promise<CreatedBudgetResult> => {
   if (input.amount === 0) {
     throw new DomainError(
@@ -78,7 +79,7 @@ export const createBudget = async (
     );
   }
 
-  const category = await findCategoryById(input.categoryId);
+  const category = await findCategoryById(input.categoryId, userSub);
   if (!category) {
     throw new DomainError("NOT_FOUND", "Category not found");
   }
@@ -88,7 +89,7 @@ export const createBudget = async (
     amount: input.amount,
     memo: input.memo,
     date: input.date,
-    userId: TEMP_USER_ID,
+    userId: userSub,
   });
 
   return {

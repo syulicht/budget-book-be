@@ -46,13 +46,14 @@ describe("budgetController", () => {
 
     const statusSpy = vi.fn().mockReturnThis();
     const jsonSpy = vi.fn().mockReturnThis();
-    const req = {} as Request;
+    const req = { auth: { sub: "sub-001" } } as Request;
     const res = { status: statusSpy, json: jsonSpy } as unknown as Response;
     const next = vi.fn() as unknown as NextFunction;
 
     await getBudgets(req, res, next);
 
     expect(getBudgetListMock).toHaveBeenCalledTimes(1);
+    expect(getBudgetListMock).toHaveBeenCalledWith("sub-001");
     expect(statusSpy).toHaveBeenCalledWith(200);
     expect(jsonSpy).toHaveBeenCalledWith(responseBody);
     expect(next).not.toHaveBeenCalled();
@@ -64,7 +65,7 @@ describe("budgetController", () => {
 
     const statusSpy = vi.fn().mockReturnThis();
     const jsonSpy = vi.fn().mockReturnThis();
-    const req = {} as Request;
+    const req = { auth: { sub: "sub-001" } } as Request;
     const res = { status: statusSpy, json: jsonSpy } as unknown as Response;
     const next = vi.fn() as unknown as NextFunction;
 
@@ -75,6 +76,24 @@ describe("budgetController", () => {
     expect(jsonSpy).not.toHaveBeenCalled();
   });
 
+  it("未認証で一覧取得した場合は401を返す", async () => {
+    const statusSpy = vi.fn().mockReturnThis();
+    const jsonSpy = vi.fn().mockReturnThis();
+    const req = {} as Request;
+    const res = { status: statusSpy, json: jsonSpy } as unknown as Response;
+    const next = vi.fn() as unknown as NextFunction;
+
+    await getBudgets(req, res, next);
+
+    expect(getBudgetListMock).not.toHaveBeenCalled();
+    expect(statusSpy).toHaveBeenCalledWith(401);
+    expect(jsonSpy).toHaveBeenCalledWith({
+      status: "error",
+      message: "Unauthorized",
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
   it("登録バリデーションエラー時は400を返す", async () => {
     validateCreateBudgetRequestMock.mockReturnValue({
       ok: false,
@@ -83,7 +102,7 @@ describe("budgetController", () => {
 
     const statusSpy = vi.fn().mockReturnThis();
     const jsonSpy = vi.fn().mockReturnThis();
-    const req = { body: {} } as Request;
+    const req = { body: {}, auth: { sub: "sub-001" } } as Request;
     const res = { status: statusSpy, json: jsonSpy } as unknown as Response;
     const next = vi.fn() as unknown as NextFunction;
 
@@ -118,7 +137,7 @@ describe("budgetController", () => {
       memo: "salary",
       categoryId: 1,
       budgetBaseId: 7,
-      userId: 0,
+      userId: "sub-001",
       createdAt: "2026-02-15T00:00:00.000Z",
       updatedAt: "2026-02-15T00:00:00.000Z",
     };
@@ -126,13 +145,16 @@ describe("budgetController", () => {
 
     const statusSpy = vi.fn().mockReturnThis();
     const jsonSpy = vi.fn().mockReturnThis();
-    const req = { body: { budget: {} } } as Request;
+    const req = { body: { budget: {} }, auth: { sub: "sub-001" } } as Request;
     const res = { status: statusSpy, json: jsonSpy } as unknown as Response;
     const next = vi.fn() as unknown as NextFunction;
 
     await createBudget(req, res, next);
 
-    expect(createBudgetServiceMock).toHaveBeenCalledWith(parsedInput);
+    expect(createBudgetServiceMock).toHaveBeenCalledWith(
+      parsedInput,
+      "sub-001"
+    );
     expect(statusSpy).toHaveBeenCalledWith(201);
     expect(jsonSpy).toHaveBeenCalledWith({
       status: "success",
@@ -158,7 +180,7 @@ describe("budgetController", () => {
 
     const statusSpy = vi.fn().mockReturnThis();
     const jsonSpy = vi.fn().mockReturnThis();
-    const req = { body: { budget: {} } } as Request;
+    const req = { body: { budget: {} }, auth: { sub: "sub-001" } } as Request;
     const res = { status: statusSpy, json: jsonSpy } as unknown as Response;
     const next = vi.fn() as unknown as NextFunction;
 
@@ -168,6 +190,25 @@ describe("budgetController", () => {
     expect(jsonSpy).toHaveBeenCalledWith({
       status: "error",
       message: "Category not found",
+    });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("未認証で登録した場合は401を返す", async () => {
+    const statusSpy = vi.fn().mockReturnThis();
+    const jsonSpy = vi.fn().mockReturnThis();
+    const req = { body: { budget: {} } } as Request;
+    const res = { status: statusSpy, json: jsonSpy } as unknown as Response;
+    const next = vi.fn() as unknown as NextFunction;
+
+    await createBudget(req, res, next);
+
+    expect(validateCreateBudgetRequestMock).not.toHaveBeenCalled();
+    expect(createBudgetServiceMock).not.toHaveBeenCalled();
+    expect(statusSpy).toHaveBeenCalledWith(401);
+    expect(jsonSpy).toHaveBeenCalledWith({
+      status: "error",
+      message: "Unauthorized",
     });
     expect(next).not.toHaveBeenCalled();
   });

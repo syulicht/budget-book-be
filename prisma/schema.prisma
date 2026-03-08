@@ -24,7 +24,7 @@ enum Frequency {
 model Category {
   id Int @id @default(autoincrement())
   name String
-  user_id Int
+  user_id String
   budget_bases BudgetBase[]
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -51,7 +51,7 @@ model Budget {
   id Int  @id @default(autoincrement())
   budget BudgetBase @relation(fields: [budget_base_id], references: [id])
   budget_base_id Int
-  user_id Int
+  user_id String
   date DateTime
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -63,7 +63,7 @@ model Subscription {
   id Int @id @default(autoincrement())
   budget BudgetBase @relation(fields: [budget_base_id], references: [id])
   budget_base_id Int
-  user_id Int
+  user_id String
   frequency Frequency @default(MONTH)
   day_order Int
   start_date DateTime

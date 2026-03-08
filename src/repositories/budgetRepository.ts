@@ -26,7 +26,7 @@ type BudgetBaseWriteRecord = {
 
 type BudgetWriteRecord = {
   id: number;
-  user_id: number;
+  user_id: string;
   date: Date;
   created_at: Date;
   updated_at: Date;
@@ -38,6 +38,9 @@ export type CreatedBudgetRecords = {
 };
 
 type BudgetFindManyArgs = {
+  where: {
+    user_id: string;
+  };
   orderBy: [{ date: "desc" }, { id: "desc" }];
   select: {
     id: true;
@@ -71,7 +74,7 @@ type BudgetCreateTx = {
     create: (args: {
       data: {
         budget_base_id: number;
-        user_id: number;
+        user_id: string;
         date: Date;
       };
     }) => Promise<BudgetWriteRecord>;
@@ -83,45 +86,51 @@ type BudgetPrismaClient = {
     findMany: (args: BudgetFindManyArgs) => Promise<BudgetRecord[]>;
   };
   category: {
-    findUnique: (args: {
-      where: { id: number };
+    findFirst: (args: {
+      where: { id: number; user_id: string };
       select: { id: true };
     }) => Promise<CategoryRecord | null>;
   };
   $transaction: <T>(fn: (tx: BudgetCreateTx) => Promise<T>) => Promise<T>;
 };
 
-const budgetFindManyArgs: BudgetFindManyArgs = {
-  orderBy: [{ date: "desc" }, { id: "desc" }],
-  select: {
-    id: true,
-    date: true,
-    budget: {
-      select: {
-        amount: true,
-        memo: true,
-        category: {
-          select: {
-            id: true,
-            name: true,
+const budgetClient = prismaClient as unknown as BudgetPrismaClient;
+
+const createBudgetFindManyArgs = (userSub: string): BudgetFindManyArgs => {
+  return {
+    where: {
+      user_id: userSub,
+    },
+    orderBy: [{ date: "desc" }, { id: "desc" }],
+    select: {
+      id: true,
+      date: true,
+      budget: {
+        select: {
+          amount: true,
+          memo: true,
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
           },
         },
       },
     },
-  },
+  };
 };
 
-const budgetClient = prismaClient as unknown as BudgetPrismaClient;
-
-export const findBudgets = (): Promise<BudgetRecord[]> => {
-  return budgetClient.budget.findMany(budgetFindManyArgs);
+export const findBudgets = (userSub: string): Promise<BudgetRecord[]> => {
+  return budgetClient.budget.findMany(createBudgetFindManyArgs(userSub));
 };
 
 export const findCategoryById = async (
-  categoryId: number
+  categoryId: number,
+  userSub: string
 ): Promise<CategoryRecord | null> =>
-  budgetClient.category.findUnique({
-    where: { id: categoryId },
+  budgetClient.category.findFirst({
+    where: { id: categoryId, user_id: userSub },
     select: { id: true },
   });
 
@@ -130,7 +139,7 @@ export const createBudgetWithBaseInTx = async (params: {
   amount: number;
   memo: string;
   date: Date;
-  userId: number;
+  userId: string;
 }): Promise<CreatedBudgetRecords> => {
   const { categoryId, amount, memo, date, userId } = params;
 
