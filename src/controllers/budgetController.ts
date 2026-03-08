@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { resolveUserSub } from "../lib/auth.js";
+import { sendErrorResponse } from "../lib/errorResponse.js";
 import {
   createBudget as createBudgetService,
   DomainError,
@@ -42,9 +43,12 @@ export const createBudget = async (
   try {
     const validationResult = validateCreateBudgetRequest(req.body as unknown);
     if (!validationResult.ok) {
-      res.status(400).json({
-        status: "error",
+      sendErrorResponse({
+        req,
+        res,
+        statusCode: 400,
         message: validationResult.message,
+        scope: "BudgetController",
       });
       return;
     }
@@ -58,9 +62,13 @@ export const createBudget = async (
   } catch (error) {
     if (error instanceof DomainError) {
       const statusCode = error.code === "NOT_FOUND" ? 404 : 400;
-      res.status(statusCode).json({
-        status: "error",
+      sendErrorResponse({
+        req,
+        res,
+        statusCode,
         message: error.message,
+        scope: "BudgetController",
+        cause: error,
       });
       return;
     }

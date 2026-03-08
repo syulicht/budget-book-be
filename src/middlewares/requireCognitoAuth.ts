@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
+import { sendErrorResponse } from "../lib/errorResponse.js";
 
 type CognitoAuthConfig = {
   issuer: string;
@@ -39,10 +40,19 @@ const extractBearerToken = (authorization?: string): string | null => {
   return matched[1].trim();
 };
 
-const unauthorized = (res: Response, message: string): void => {
-  res.status(401).json({
-    status: "error",
+const unauthorized = (
+  req: Request,
+  res: Response,
+  message: string,
+  cause?: unknown
+): void => {
+  sendErrorResponse({
+    req,
+    res,
+    statusCode: 401,
     message,
+    scope: "Auth",
+    cause,
   });
 };
 
@@ -53,16 +63,19 @@ export const requireCognitoAuth = async (
 ): Promise<void> => {
   const config = resolveCognitoAuthConfig();
   if (!config) {
-    res.status(500).json({
-      status: "error",
+    sendErrorResponse({
+      req,
+      res,
+      statusCode: 500,
       message: "Cognito auth configuration is missing",
+      scope: "Auth",
     });
     return;
   }
 
   const token = extractBearerToken(req.headers.authorization);
   if (!token) {
-    unauthorized(res, "Authorization header is missing or invalid");
+    unauthorized(req, res, "Authorization header is missing or invalid");
     return;
   }
 
@@ -76,12 +89,12 @@ export const requireCognitoAuth = async (
 
     const cognitoPayload = payload as CognitoAccessTokenPayload;
     if (cognitoPayload.token_use !== "access") {
-      unauthorized(res, "token_use must be access");
+      unauthorized(req, res, "token_use must be access");
       return;
     }
 
     if (cognitoPayload.client_id !== config.appClientId) {
-      unauthorized(res, "client_id does not match");
+      unauthorized(req, res, "client_id does not match");
       return;
     }
 
@@ -89,14 +102,13 @@ export const requireCognitoAuth = async (
       typeof cognitoPayload.sub !== "string" ||
       cognitoPayload.sub.length === 0
     ) {
-      unauthorized(res, "sub claim is missing");
+      unauthorized(req, res, "sub claim is missing");
       return;
     }
 
     req.auth = { sub: cognitoPayload.sub };
     next();
   } catch (error) {
-    console.error("Failed to verify Cognito token", error);
-    unauthorized(res, "Invalid or expired access token");
+    unauthorized(req, res, "Invalid or expired access token", error);
   }
 };

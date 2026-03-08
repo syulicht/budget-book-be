@@ -1,20 +1,21 @@
 import { Request, Response, NextFunction } from "express";
+import { sendErrorResponse } from "../lib/errorResponse.js";
 
 /**
  * グローバルエラーハンドリングミドルウェア
  */
 export const errorHandler = (
   err: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
-  console.error("Error:", err.message);
-
-  console.error("Stack:", err.stack);
-
-  res.status(500).json({
-    status: "error",
+  sendErrorResponse({
+    req,
+    res,
+    statusCode: 500,
     message: err.message || "Internal Server Error",
+    scope: "ErrorHandler",
+    cause: err,
   });
 };
