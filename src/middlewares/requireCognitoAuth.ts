@@ -32,7 +32,7 @@ const extractBearerToken = (authorization?: string): string | null => {
     return null;
   }
 
-  const matched = authorization.match(/^Bearer\s+(.+)$/i);
+  const matched = RegExp(/^Bearer\s+(.+)$/i).exec(authorization);
   if (!matched) {
     return null;
   }
