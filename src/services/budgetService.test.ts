@@ -78,9 +78,10 @@ describe("budgetService", () => {
       },
     ]);
 
-    const response = await getBudgetList();
+    const response = await getBudgetList("sub-001");
 
     expect(findBudgetsMock).toHaveBeenCalledTimes(1);
+    expect(findBudgetsMock).toHaveBeenCalledWith("sub-001");
     expect(response).toEqual({
       budgets: [
         {
@@ -108,27 +109,30 @@ describe("budgetService", () => {
       },
       budget: {
         id: 20,
-        user_id: 0,
+        user_id: "sub-001",
         date: new Date("2026-02-20T00:00:00.000Z"),
         created_at: new Date("2026-02-20T00:00:00.000Z"),
         updated_at: new Date("2026-02-20T00:00:00.000Z"),
       },
     });
 
-    const response = await createBudget({
-      date: new Date("2026-02-20T00:00:00.000Z"),
-      amount: 5000,
-      memo: "salary",
-      categoryId: 1,
-    });
+    const response = await createBudget(
+      {
+        date: new Date("2026-02-20T00:00:00.000Z"),
+        amount: 5000,
+        memo: "salary",
+        categoryId: 1,
+      },
+      "sub-001"
+    );
 
-    expect(findCategoryByIdMock).toHaveBeenCalledWith(1);
+    expect(findCategoryByIdMock).toHaveBeenCalledWith(1, "sub-001");
     expect(createBudgetWithBaseInTxMock).toHaveBeenCalledWith({
       categoryId: 1,
       amount: 5000,
       memo: "salary",
       date: new Date("2026-02-20T00:00:00.000Z"),
-      userId: 0,
+      userId: "sub-001",
     });
     expect(response.type).toBe("INCOME");
     expect(response).toMatchObject({
@@ -137,7 +141,7 @@ describe("budgetService", () => {
       memo: "salary",
       categoryId: 1,
       budgetBaseId: 10,
-      userId: 0,
+      userId: "sub-001",
     });
   });
 
@@ -152,19 +156,22 @@ describe("budgetService", () => {
       },
       budget: {
         id: 21,
-        user_id: 0,
+        user_id: "sub-001",
         date: new Date("2026-02-21T00:00:00.000Z"),
         created_at: new Date("2026-02-21T00:00:00.000Z"),
         updated_at: new Date("2026-02-21T00:00:00.000Z"),
       },
     });
 
-    const response = await createBudget({
-      date: new Date("2026-02-21T00:00:00.000Z"),
-      amount: -3000,
-      memo: "lunch",
-      categoryId: 2,
-    });
+    const response = await createBudget(
+      {
+        date: new Date("2026-02-21T00:00:00.000Z"),
+        amount: -3000,
+        memo: "lunch",
+        categoryId: 2,
+      },
+      "sub-001"
+    );
 
     expect(response.type).toBe("EXPENSE");
     expect(response.amount).toBe(-3000);
@@ -172,12 +179,15 @@ describe("budgetService", () => {
 
   it("amountが0の場合はVALIDATION_ERRORを投げる", async () => {
     await expect(
-      createBudget({
-        date: new Date("2026-02-22T00:00:00.000Z"),
-        amount: 0,
-        memo: "invalid",
-        categoryId: 1,
-      })
+      createBudget(
+        {
+          date: new Date("2026-02-22T00:00:00.000Z"),
+          amount: 0,
+          memo: "invalid",
+          categoryId: 1,
+        },
+        "sub-001"
+      )
     ).rejects.toEqual(
       expect.objectContaining({
         name: "DomainError",
@@ -194,12 +204,15 @@ describe("budgetService", () => {
     findCategoryByIdMock.mockResolvedValue(null);
 
     await expect(
-      createBudget({
-        date: new Date("2026-02-22T00:00:00.000Z"),
-        amount: 1000,
-        memo: "unknown category",
-        categoryId: 999,
-      })
+      createBudget(
+        {
+          date: new Date("2026-02-22T00:00:00.000Z"),
+          amount: 1000,
+          memo: "unknown category",
+          categoryId: 999,
+        },
+        "sub-001"
+      )
     ).rejects.toEqual(
       expect.objectContaining({
         name: "DomainError",
@@ -217,12 +230,15 @@ describe("budgetService", () => {
     createBudgetWithBaseInTxMock.mockRejectedValue(repositoryError);
 
     await expect(
-      createBudget({
-        date: new Date("2026-02-23T00:00:00.000Z"),
-        amount: 1000,
-        memo: "salary",
-        categoryId: 1,
-      })
+      createBudget(
+        {
+          date: new Date("2026-02-23T00:00:00.000Z"),
+          amount: 1000,
+          memo: "salary",
+          categoryId: 1,
+        },
+        "sub-001"
+      )
     ).rejects.toBe(repositoryError);
   });
 });
